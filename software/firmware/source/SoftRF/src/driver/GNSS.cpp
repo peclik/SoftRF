@@ -353,7 +353,7 @@ static void setup_UBX()
 
   if (!gnss_set_sucess) {
     Serial.print(F("WARNING: Unable to set baud rate onto "));
-    Serial.println(baudrate); 
+    Serial.println(baudrate);
   }
   Serial_GNSS_In.flush();
   SoC->swSer_begin(baudrate);
@@ -1029,18 +1029,9 @@ static bool at65_setup()
   }
   delay(250);
 
-#if defined(NMEA_TCP_SERVICE)
-  if (settings->nmea_out == NMEA_TCP ||       // SD
-      settings->nmea_out == NMEA_BLUETOOTH) { // SD
-    /* GGA,RMC and GSA */
-    Serial_GNSS_Out.write("$PCAS03,1,0,1,0,1,0,0,0,0,0,,,0,0*03\r\n");
-  }
-  else
-#endif /* NMEA_TCP_SERVICE */
-  {
-    /* GGA and RMC */
-    Serial_GNSS_Out.write("$PCAS03,1,0,0,0,1,0,0,0,0,0,,,0,0*02\r\n");
-  }
+  /* GGA, GSA and RMC */
+  Serial_GNSS_Out.write("$PCAS03,1,0,1,0,1,0,0,0,0,0,,,0,0*03\r\n");
+
   delay(250);
 
   Serial_GNSS_Out.write("$PCAS11,6*1B\r\n"); /* Aviation < 2g */ delay(250);
