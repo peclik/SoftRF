@@ -30,11 +30,7 @@
 extern RTC_Date fw_build_date_time;
 #endif /* ARDUINO_ARCH_NRF52 */
 
-#include "U8g2_for_Adafruit_GFX.h"
-
 static const char TZ_text[] = "UTC";
-
-U8G2_FOR_ADAFRUIT_GFX u8g2Fonts;
 
 static const uint8_t bt_icon[] = {
   0x0F, 0xF0, 0x1D, 0x38, 0x31, 0x98, 0x31, 0xCC,
@@ -45,11 +41,6 @@ static const uint8_t bt_icon[] = {
 
 void EPD_time_setup()
 {
-  u8g2Fonts.begin(*display); // connect u8g2 procedures to Adafruit GFX
-  u8g2Fonts.setFontDirection(3);
-  u8g2Fonts.setForegroundColor(GxEPD_BLACK);
-  u8g2Fonts.setBackgroundColor(GxEPD_WHITE);
-  u8g2Fonts.setFont(u8g2_font_battery19_tn);
 }
 
 void EPD_time_loop()
@@ -111,7 +102,7 @@ void EPD_time_loop()
     display->setCursor((display->width() - tbw) / 2, display->height() / 2);
     display->print(buf_hm);
 
-    display->setFont(&FreeMono18pt7b);
+    display->setFont(&FreeMonoBold18pt7b);
     display->getTextBounds(buf_sec, 0, 0, &tbx, &tby, &tbw, &tbh);
 
     display->setCursor((display->width() - tbw) / 2, display->height() / 2 + tbh + tbh);

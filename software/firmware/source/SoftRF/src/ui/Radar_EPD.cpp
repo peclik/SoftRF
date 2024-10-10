@@ -25,14 +25,12 @@
 #include <TimeLib.h>
 
 #include "../TrafficHelper.h"
+#include "../driver/Battery.h"
 #include "../driver/EEPROM.h"
 #include "../protocol/data/NMEA.h"
 #include "../protocol/data/GDL90.h"
 #include "../driver/LED.h"
 #include "../driver/RF.h"
-
-#include <Fonts/FreeMonoBold9pt7b.h>
-#include <Fonts/Picopixel.h>
 
 static int EPD_zoom = ZOOM_MEDIUM;
 
@@ -52,7 +50,7 @@ static void EPD_Draw_Radar()
   uint16_t tbw, tbh;
   uint16_t x;
   uint16_t y;
-  char cog_text[6];
+  char buf[6];
 
 #if defined(USE_EPD_TASK)
   if (EPD_update_in_progress == EPD_UPDATE_NONE) {
@@ -293,13 +291,13 @@ static void EPD_Draw_Radar()
         display->print("B");
 
         display->setFont(&FreeMonoBold9pt7b);
-        snprintf(cog_text, sizeof(cog_text), "%03d", (int) ThisAircraft.course);
-        display->getTextBounds(cog_text, 0, 0, &tbx, &tby, &tbw, &tbh);
+        snprintf(buf, sizeof(buf), "%03d", (int) ThisAircraft.course);
+        display->getTextBounds(buf, 0, 0, &tbx, &tby, &tbw, &tbh);
 
         x = radar_x + (radar_w - tbw) / 2;
         y = radar_y + radar_w/2 - radius + (3 * tbh)/2;
         display->setCursor(x , y);
-        display->print(cog_text);
+        display->print(buf);
         display->drawRoundRect( x - 2, y - tbh - 2,
                                 tbw + 8, tbh + 6,
                                 4, GxEPD_BLACK);
@@ -309,60 +307,82 @@ static void EPD_Draw_Radar()
         break;
       }
 
-      display->setFont(&FreeMonoBold12pt7b);
-      display->getTextBounds("0", 0, 0, &tbx, &tby, &tbw, &tbh);
+      snprintf(buf, sizeof(buf), "%u", Battery_charge());
+      display->setFont(&OpenSansCondensed15pt7b);
+      display->getTextBounds(buf, 0, 0, &tbx, &tby, &tbw, &tbh);
+      x = display_width - tbw - 3;
+      y = tbh;
+      display->setCursor(x, y);
+      display->print(buf);
 
+      y += 10;
+      u8g2Fonts.setCursor(display_width - 5, y);
+      u8g2Fonts.print((Battery_charge() + 19) / 20);
+
+      display->setFont(&FreeMono9pt7b);
+      display->getTextBounds("ACFTS", 0, 0, &tbx, &tby, &tbw, &tbh);
 #if defined(EPD_ASPECT_RATIO_1C1)
-      x = radar_x + tbw / 2;
-      y = radar_y + radar_w - tbh;
+      x = 0;
+      y = display_height - 1;
 #endif /* EPD_ASPECT_RATIO_1C1 */
 #if defined(EPD_ASPECT_RATIO_2C1)
-      x = 0 + tbw / 2;
-      y = display_height + dy - tbh;
+      x = tbw / 2;
+      y = display_height + dy - 1;
 #endif /* EPD_ASPECT_RATIO_2C1 */
-      display->setCursor(x, y);
-
-      display->print(Traffic_Count());
-
-      display->setFont(&Picopixel);
-      display->getTextBounds("ACFTS", 0, 0, &tbx, &tby, &tbw, &tbh);
-      y += tbh; y += tbh;
       display->setCursor(x, y);
       display->print("ACFTS");
 
-      display->setFont(&FreeMonoBold12pt7b);
-      display->getTextBounds("00 ", 0, 0, &tbx, &tby, &tbw, &tbh);
+      y -= tbh + 5;
+
+      display->setFont(&OpenSansCondensed15pt7b);
+      display->setCursor(x, y);
+      display->print(Traffic_Count());
+
+      display->setFont(&FreeMono9pt7b);
+      display->getTextBounds("km ", 0, 0, &tbx, &tby, &tbw, &tbh);
 
 #if defined(EPD_ASPECT_RATIO_1C1)
-      x = radar_x + radar_w - tbw;
-      y = radar_y + radar_w - tbh;
+      x = display_width - tbw;
+      y = display_height - 1;
 #endif /* EPD_ASPECT_RATIO_1C1 */
 #if defined(EPD_ASPECT_RATIO_2C1)
-      x = display_width - tbw;
-      y = display_height + dy - tbh;
+      x = radar_x + radar_w - tbw;
+      y = display_height + dy - 1;
 #endif /* EPD_ASPECT_RATIO_2C1 */
       display->setCursor(x, y);
 
+      display->print(ui->units == UNITS_METRIC || ui->units == UNITS_MIXED ?
+                     "km" : "NM");
+
+      y -= tbh + 5;
+
+      char zoom_text[5];
       if (ui->units == UNITS_METRIC || ui->units == UNITS_MIXED) {
-        display->print(EPD_zoom == ZOOM_LOWEST ? "60" :
-                       EPD_zoom == ZOOM_LOW    ? "10" :
-                       EPD_zoom == ZOOM_MEDIUM ? "4 " :
-                       EPD_zoom == ZOOM_HIGH   ? "2 " : "");
+        snprintf(zoom_text, sizeof(zoom_text), "%s",
+          EPD_zoom == ZOOM_LOWEST ? "60" :
+          EPD_zoom == ZOOM_LOW    ? "10" :
+          EPD_zoom == ZOOM_MEDIUM ? " 4" :
+          EPD_zoom == ZOOM_HIGH   ? " 2" : "");
       } else {
-        display->print(EPD_zoom == ZOOM_LOWEST ? "30" :
-                       EPD_zoom == ZOOM_LOW    ? "5 " :
-                       EPD_zoom == ZOOM_MEDIUM ? "2 " :
-                       EPD_zoom == ZOOM_HIGH   ? "1 " : "");
+        snprintf(zoom_text, sizeof(zoom_text), "%s",
+          EPD_zoom == ZOOM_LOWEST ? "30" :
+          EPD_zoom == ZOOM_LOW    ? " 5" :
+          EPD_zoom == ZOOM_MEDIUM ? " 2" :
+          EPD_zoom == ZOOM_HIGH   ? " 1" : "");
       }
 
-      display->setFont(&Picopixel);
-      display->getTextBounds("KM", 0, 0, &tbx, &tby, &tbw, &tbh);
-      x += tbw;
-      y += tbh; y += tbh;
+      display->setFont(&OpenSansCondensed15pt7b);
+      display->getTextBounds(zoom_text, 0, 0, &tbx, &tby, &tbw, &tbh);
+
+#if defined(EPD_ASPECT_RATIO_1C1)
+      x = display_width - tbw;
+#endif /* EPD_ASPECT_RATIO_1C1 */
+#if defined(EPD_ASPECT_RATIO_2C1)
+      x = radar_x + radar_w - tbw;
+#endif /* EPD_ASPECT_RATIO_2C1 */
       display->setCursor(x, y);
 
-      display->print(ui->units == UNITS_METRIC || ui->units == UNITS_MIXED ?
-                     "KM" : "NM");
+      display->print(zoom_text);
     }
 
 #if defined(USE_EPD_TASK)
