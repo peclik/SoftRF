@@ -3125,16 +3125,16 @@ static void nRF52_Button_setup()
   ModeButtonConfig->setFeature(
                     ButtonConfig::kFeatureSuppressClickBeforeDoubleClick);
 //  ModeButtonConfig->setDebounceDelay(15);
-  ModeButtonConfig->setClickDelay(600);
-  ModeButtonConfig->setDoubleClickDelay(1500);
+  ModeButtonConfig->setClickDelay(200);
+  ModeButtonConfig->setDoubleClickDelay(1000);
   ModeButtonConfig->setLongPressDelay(2000);
 
   ButtonConfig* UpButtonConfig = button_2.getButtonConfig();
   UpButtonConfig->setEventHandler(handleEvent);
   UpButtonConfig->setFeature(ButtonConfig::kFeatureClick);
 //  UpButtonConfig->setDebounceDelay(15);
-  UpButtonConfig->setClickDelay(600);
-  UpButtonConfig->setDoubleClickDelay(1500);
+  UpButtonConfig->setClickDelay(200);
+  UpButtonConfig->setDoubleClickDelay(1000);
   UpButtonConfig->setLongPressDelay(2000);
 
 //  attachInterrupt(digitalPinToInterrupt(mode_button_pin), onModeButtonEvent, CHANGE );
