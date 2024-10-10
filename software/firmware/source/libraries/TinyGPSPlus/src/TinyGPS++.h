@@ -208,9 +208,14 @@ struct TinyGPSGeoidSeparation : TinyGPSDecimal
    double feet()         { return _GPS_FEET_PER_METER * value() / 100.0; }
 };
 
-struct TinyGPSHDOP : TinyGPSDecimal
+struct TinyGPSDOP : TinyGPSDecimal
 {
-   double hdop() { return value() / 100.0; }
+   double dop() { return value() / 100.0; }
+};
+
+struct TinyGPSHDOP : TinyGPSDOP
+{
+   double hdop() { return dop(); }
 };
 
 class TinyGPSPlus;
@@ -254,7 +259,9 @@ public:
   TinyGPSCourse course;
   TinyGPSAltitude altitude;
   TinyGPSInteger satellites;
+  TinyGPSDOP pdop;
   TinyGPSHDOP hdop;
+  TinyGPSDOP vdop;
   TinyGPSGeoidSeparation separation;
 
   static const char *libraryVersion() { return _GPS_VERSION; }
@@ -272,7 +279,7 @@ public:
   uint32_t passedChecksum()   const { return passedChecksumCount; }
 
 private:
-  enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_OTHER};
+  enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_GPGSA, GPS_SENTENCE_OTHER};
 
   // parsing state variables
   uint8_t parity;

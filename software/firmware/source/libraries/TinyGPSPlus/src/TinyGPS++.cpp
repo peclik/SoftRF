@@ -29,8 +29,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define _GPRMCterm   "GPRMC"
 #define _GPGGAterm   "GPGGA"
+#define _GPGSAterm   "GPGSA"
 #define _GNRMCterm   "GNRMC"
 #define _GNGGAterm   "GNGGA"
+#define _GNGSAterm   "GNGSA"
 
 TinyGPSPlus::TinyGPSPlus()
   :  parity(0)
@@ -191,6 +193,10 @@ bool TinyGPSPlus::endOfTermHandler()
         satellites.commit();
         hdop.commit();
         break;
+      case GPS_SENTENCE_GPGSA:
+        pdop.commit();
+        vdop.commit();
+        break;
       }
 
       // Commit all custom listeners of this sentence type
@@ -214,6 +220,8 @@ bool TinyGPSPlus::endOfTermHandler()
       curSentenceType = GPS_SENTENCE_GPRMC;
     else if (!strcmp(term, _GPGGAterm) || !strcmp(term, _GNGGAterm))
       curSentenceType = GPS_SENTENCE_GPGGA;
+    else if (!strcmp(term, _GPGSAterm) || !strcmp(term, _GNGSAterm))
+      curSentenceType = GPS_SENTENCE_GPGSA;
     else
       curSentenceType = GPS_SENTENCE_OTHER;
 
@@ -278,6 +286,12 @@ bool TinyGPSPlus::endOfTermHandler()
       break;
     case COMBINE(GPS_SENTENCE_GPRMC, 12):
       location.newFixMode = (FixMode)term[0];
+      break;
+    case COMBINE(GPS_SENTENCE_GPGSA, 15):
+      pdop.set(term); //PDOP
+      break;
+    case COMBINE(GPS_SENTENCE_GPGSA, 17):
+      vdop.set(term); //VDOP
       break;
   }
 
