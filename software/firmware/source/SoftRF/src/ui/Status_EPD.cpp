@@ -27,6 +27,17 @@
 #include "../driver/RF.h"
 #include <protocol.h>
 
+#define STATUS_PAGE_MIN 1
+#define STATUS_PAGE_MAX 2
+#define STATUS_PAGE_DEF 1
+
+void EPD_status1_setup();
+void EPD_status1_loop();
+void EPD_status2_setup();
+void EPD_status2_loop();
+
+static int status_page = STATUS_PAGE_DEF;
+
 const char ID_text[]       = "ID";
 const char PROTOCOL_text[] = "PROTOCOL";
 const char RX_text[]       = "RX";
@@ -41,7 +52,7 @@ static navbox_t navbox4;
 static navbox_t navbox5;
 static navbox_t navbox6;
 
-void EPD_status_setup()
+static void EPD_status0_setup()
 {
   uint16_t display_width  = display->width();
   uint16_t display_height = display->height();
@@ -265,7 +276,7 @@ static void EPD_Draw_NavBoxes()
   }
 }
 
-void EPD_status_loop()
+static void EPD_status0_loop()
 {
   if (isTimeToEPD()) {
 
@@ -280,14 +291,38 @@ void EPD_status_loop()
   }
 }
 
+void EPD_status_setup()
+{
+  if (STATUS_PAGE_MIN <= 0 && 0 <= STATUS_PAGE_MAX)
+    EPD_status0_setup();
+  if (STATUS_PAGE_MIN <= 1 && 1 <= STATUS_PAGE_MAX)
+    EPD_status1_setup();
+  if (STATUS_PAGE_MIN <= 2 && 2 <= STATUS_PAGE_MAX)
+    EPD_status2_setup();
+}
+
+void EPD_status_loop()
+{
+  switch (status_page) {
+    case 1:  EPD_status1_loop(); break;
+    case 2:  EPD_status2_loop(); break;
+    case 0: // fall through
+    default: EPD_status0_loop(); break;
+  }
+}
+
 void EPD_status_next()
 {
-
+  if (status_page < STATUS_PAGE_MAX) status_page++; else status_page = STATUS_PAGE_MIN;
+  EPDTimeMarker = 0;
+  EPD_status_loop();
 }
 
 void EPD_status_prev()
 {
-
+  if (status_page > STATUS_PAGE_MIN) status_page--; else status_page = STATUS_PAGE_MAX;
+  EPDTimeMarker = 0;
+  EPD_status_loop();
 }
 
 #endif /* USE_EPAPER */

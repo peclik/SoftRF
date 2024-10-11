@@ -161,11 +161,14 @@ DRV_CPPS      := $(DRIVER_PATH)/RF.cpp             \
                  $(DRIVER_PATH)/Bluetooth.cpp      \
                  $(DRIVER_PATH)/Sound.cpp          \
                  $(DRIVER_PATH)/WiFi.cpp           \
-                 $(DRIVER_PATH)/EPD.cpp
+                 $(DRIVER_PATH)/EPD.cpp            \
+                 $(DRIVER_PATH)/EPDdatabox.cpp
 
 UI_CPPS       := $(UI_PATH)/Web.cpp        \
                  $(UI_PATH)/Radar_EPD.cpp  \
                  $(UI_PATH)/Status_EPD.cpp \
+                 $(UI_PATH)/Status1_EPD.cpp \
+                 $(UI_PATH)/Status2_EPD.cpp \
                  $(UI_PATH)/Text_EPD.cpp   \
                  $(UI_PATH)/Baro_EPD.cpp   \
                  $(UI_PATH)/IMU_EPD.cpp    \
