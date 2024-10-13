@@ -780,6 +780,81 @@ static void nRF52_setup()
   }
 #endif /* EXCLUDE_PMU */
 
+  switch (nRF52_board)
+  {
+    case NRF52_LILYGO_TULTIMA:
+#if !defined(ARDUINO_ARCH_MBED)
+      xl9555 = new ExtensionIOXL9555(Wire,
+                                     SOC_GPIO_PIN_TULTIMA_SDA,
+                                     SOC_GPIO_PIN_TULTIMA_SCL,
+                                     XL9555_ADDRESS);
+      nRF52_has_extension = xl9555->init(Wire,
+                                         SOC_GPIO_PIN_TULTIMA_SDA,
+                                         SOC_GPIO_PIN_TULTIMA_SCL,
+                                         XL9555_ADDRESS);
+      if (nRF52_has_extension) {
+        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_GNSS_TULTIMA_PWR, HIGH);
+        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_SENS_TULTIMA_PWR, HIGH);
+        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_LORA_TULTIMA_PWR, HIGH);
+        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_WIFI_TULTIMA_PWR, HIGH);
+
+        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_MOTOR_TULTIMA_EN, HIGH);
+        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_AMP_TULTIMA_EN,   HIGH);
+
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_GNSS_TULTIMA_PWR, OUTPUT);
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_SENS_TULTIMA_PWR, OUTPUT);
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_LORA_TULTIMA_PWR, OUTPUT);
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_WIFI_TULTIMA_PWR, OUTPUT);
+
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_MOTOR_TULTIMA_EN, OUTPUT);
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_AMP_TULTIMA_EN,   OUTPUT);
+
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_CHG_TULTIMA_INS,   INPUT);
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_RTC_TULTIMA_INT,   INPUT);
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_GNSS_TULTIMA_IRQ,  INPUT);
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_SD_TULTIMA_DETECT, INPUT);
+        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_TULTIMA_BUTTON2,   INPUT);
+      }
+#endif /* ARDUINO_ARCH_MBED */
+      /* TBD */
+      break;
+
+    case NRF52_SEEED_T1000E:
+      pinMode(SOC_GPIO_PIN_T1000_3V3_EN, OUTPUT);
+      digitalWrite(SOC_GPIO_PIN_T1000_3V3_EN, HIGH);
+
+      pinMode(SOC_GPIO_PIN_T1000_BUZZER_EN, OUTPUT);
+      digitalWrite(SOC_GPIO_PIN_T1000_BUZZER_EN, HIGH);
+      break;
+
+    case NRF52_HELTEC_T114:
+      digitalWrite(SOC_GPIO_PIN_T114_VEXT_EN, HIGH);
+      pinMode(SOC_GPIO_PIN_T114_VEXT_EN, OUTPUT);
+
+      delay(200);
+
+      digitalWrite(SOC_GPIO_PIN_T114_TFT_EN, LOW);
+      pinMode(SOC_GPIO_PIN_T114_TFT_EN, OUTPUT);
+      digitalWrite(SOC_GPIO_PIN_T114_TFT_BLGT, LOW);
+      pinMode(SOC_GPIO_PIN_T114_TFT_BLGT, OUTPUT);
+
+      digitalWrite(SOC_GPIO_PIN_T114_ADC_EN, HIGH);
+      pinMode(SOC_GPIO_PIN_T114_ADC_EN, OUTPUT);
+      break;
+
+    case NRF52_LILYGO_TECHO_REV_0:
+    case NRF52_LILYGO_TECHO_REV_1:
+    case NRF52_LILYGO_TECHO_REV_2:
+    case NRF52_NORDIC_PCA10059:
+    default:
+      digitalWrite(SOC_GPIO_PIN_IO_PWR,  HIGH);
+      pinMode(SOC_GPIO_PIN_IO_PWR,  OUTPUT);  /* VDD_POWR is ON */
+      digitalWrite(SOC_GPIO_PIN_3V3_PWR, INPUT);
+
+      delay(200);
+      break;
+  }
+
 #if !defined(ARDUINO_ARCH_MBED)
   switch (nRF52_board)
   {
@@ -924,81 +999,6 @@ static void nRF52_setup()
       break;
   }
 #endif /* USE_TINYUSB */
-
-  switch (nRF52_board)
-  {
-    case NRF52_LILYGO_TULTIMA:
-#if !defined(ARDUINO_ARCH_MBED)
-      xl9555 = new ExtensionIOXL9555(Wire,
-                                     SOC_GPIO_PIN_TULTIMA_SDA,
-                                     SOC_GPIO_PIN_TULTIMA_SCL,
-                                     XL9555_ADDRESS);
-      nRF52_has_extension = xl9555->init(Wire,
-                                         SOC_GPIO_PIN_TULTIMA_SDA,
-                                         SOC_GPIO_PIN_TULTIMA_SCL,
-                                         XL9555_ADDRESS);
-      if (nRF52_has_extension) {
-        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_GNSS_TULTIMA_PWR, HIGH);
-        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_SENS_TULTIMA_PWR, HIGH);
-        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_LORA_TULTIMA_PWR, HIGH);
-        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_WIFI_TULTIMA_PWR, HIGH);
-
-        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_MOTOR_TULTIMA_EN, HIGH);
-        xl9555->digitalWrite(ExtensionIOXL9555::I2C_EXP_PIN_AMP_TULTIMA_EN,   HIGH);
-
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_GNSS_TULTIMA_PWR, OUTPUT);
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_SENS_TULTIMA_PWR, OUTPUT);
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_LORA_TULTIMA_PWR, OUTPUT);
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_WIFI_TULTIMA_PWR, OUTPUT);
-
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_MOTOR_TULTIMA_EN, OUTPUT);
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_AMP_TULTIMA_EN,   OUTPUT);
-
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_CHG_TULTIMA_INS,   INPUT);
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_RTC_TULTIMA_INT,   INPUT);
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_GNSS_TULTIMA_IRQ,  INPUT);
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_SD_TULTIMA_DETECT, INPUT);
-        xl9555->pinMode(ExtensionIOXL9555::I2C_EXP_PIN_TULTIMA_BUTTON2,   INPUT);
-      }
-#endif /* ARDUINO_ARCH_MBED */
-      /* TBD */
-      break;
-
-    case NRF52_SEEED_T1000E:
-      pinMode(SOC_GPIO_PIN_T1000_3V3_EN, OUTPUT);
-      digitalWrite(SOC_GPIO_PIN_T1000_3V3_EN, HIGH);
-
-      pinMode(SOC_GPIO_PIN_T1000_BUZZER_EN, OUTPUT);
-      digitalWrite(SOC_GPIO_PIN_T1000_BUZZER_EN, HIGH);
-      break;
-
-    case NRF52_HELTEC_T114:
-      digitalWrite(SOC_GPIO_PIN_T114_VEXT_EN, HIGH);
-      pinMode(SOC_GPIO_PIN_T114_VEXT_EN, OUTPUT);
-
-      delay(200);
-
-      digitalWrite(SOC_GPIO_PIN_T114_TFT_EN, LOW);
-      pinMode(SOC_GPIO_PIN_T114_TFT_EN, OUTPUT);
-      digitalWrite(SOC_GPIO_PIN_T114_TFT_BLGT, LOW);
-      pinMode(SOC_GPIO_PIN_T114_TFT_BLGT, OUTPUT);
-
-      digitalWrite(SOC_GPIO_PIN_T114_ADC_EN, HIGH);
-      pinMode(SOC_GPIO_PIN_T114_ADC_EN, OUTPUT);
-      break;
-
-    case NRF52_LILYGO_TECHO_REV_0:
-    case NRF52_LILYGO_TECHO_REV_1:
-    case NRF52_LILYGO_TECHO_REV_2:
-    case NRF52_NORDIC_PCA10059:
-    default:
-      digitalWrite(SOC_GPIO_PIN_IO_PWR,  HIGH);
-      pinMode(SOC_GPIO_PIN_IO_PWR,  OUTPUT);  /* VDD_POWR is ON */
-      digitalWrite(SOC_GPIO_PIN_3V3_PWR, INPUT);
-
-      delay(200);
-      break;
-  }
 
   /* GPIO pins init */
   switch (nRF52_board)
